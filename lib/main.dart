@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'core/database/database_helper.dart';
 import 'core/theme/app_theme.dart';
 import 'features/analytics_charts/presentation/dashboard_screen.dart';
@@ -43,13 +44,15 @@ class MainNavigationShell extends StatefulWidget {
 
 class _MainNavigationShellState extends State<MainNavigationShell> {
   int _currentIndex = 0;
-  final GlobalKey<DashboardScreenState> _dashboardKey = GlobalKey<DashboardScreenState>();
-  final GlobalKey<ExpensesListScreenState> _expensesKey = GlobalKey<ExpensesListScreenState>();
+  final GlobalKey<DashboardScreenState> _dashboardKey =
+      GlobalKey<DashboardScreenState>();
+  final GlobalKey<ExpensesListScreenState> _expensesKey =
+      GlobalKey<ExpensesListScreenState>();
 
   void _onScanReceipt() async {
-    final result = await Navigator.of(context).push<bool>(
-      MaterialPageRoute(builder: (context) => const CameraScreen()),
-    );
+    final result = await Navigator.of(
+      context,
+    ).push<bool>(MaterialPageRoute(builder: (context) => const CameraScreen()));
 
     if (result == true) {
       _dashboardKey.currentState?.refreshData();
@@ -69,9 +72,7 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               setState(() => _currentIndex = 1);
             },
           ),
-          ExpensesListScreen(
-            key: _expensesKey,
-          ),
+          ExpensesListScreen(key: _expensesKey),
         ],
       ),
       floatingActionButton: FloatingActionButton(
@@ -96,8 +97,12 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               IconButton(
                 tooltip: 'Dashboard',
                 icon: Icon(
-                  _currentIndex == 0 ? Icons.pie_chart_rounded : Icons.pie_chart_outline_rounded,
-                  color: _currentIndex == 0 ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
+                  _currentIndex == 0
+                      ? Icons.pie_chart_rounded
+                      : Icons.pie_chart_outline_rounded,
+                  color: _currentIndex == 0
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFF94A3B8),
                   size: 26,
                 ),
                 onPressed: () => setState(() => _currentIndex = 0),
@@ -106,8 +111,12 @@ class _MainNavigationShellState extends State<MainNavigationShell> {
               IconButton(
                 tooltip: 'Lịch sử giao dịch',
                 icon: Icon(
-                  _currentIndex == 1 ? Icons.receipt_long_rounded : Icons.receipt_long_outlined,
-                  color: _currentIndex == 1 ? const Color(0xFF10B981) : const Color(0xFF94A3B8),
+                  _currentIndex == 1
+                      ? Icons.receipt_long_rounded
+                      : Icons.receipt_long_outlined,
+                  color: _currentIndex == 1
+                      ? const Color(0xFF10B981)
+                      : const Color(0xFF94A3B8),
                   size: 26,
                 ),
                 onPressed: () => setState(() => _currentIndex = 1),

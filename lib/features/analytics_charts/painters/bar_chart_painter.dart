@@ -1,6 +1,7 @@
 import 'dart:math';
+
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 class BarChartPainter extends CustomPainter {
   final Map<DateTime, double> weeklyData;
@@ -31,7 +32,10 @@ class BarChartPainter extends CustomPainter {
     final int count = values.length;
 
     // Find maximum amount for normalization
-    double maxAmount = values.fold<double>(0.0, (prev, curr) => max(prev, curr));
+    double maxAmount = values.fold<double>(
+      0.0,
+      (prev, curr) => max(prev, curr),
+    );
     if (maxAmount <= 0) maxAmount = 100000; // Default scale if empty
 
     final double slotWidth = chartWidth / count;
@@ -42,21 +46,31 @@ class BarChartPainter extends CustomPainter {
       ..color = gridColor
       ..strokeWidth = 1.0;
     final baselineY = size.height - bottomPadding;
-    canvas.drawLine(Offset(0, baselineY), Offset(chartWidth, baselineY), linePaint);
+    canvas.drawLine(
+      Offset(0, baselineY),
+      Offset(chartWidth, baselineY),
+      linePaint,
+    );
 
     // Draw dashed 50% guide line
     final dashPaint = Paint()
       ..color = gridColor.withOpacity(0.5)
       ..strokeWidth = 1.0;
     final midY = topPadding + (chartHeight / 2);
-    _drawDashedLine(canvas, Offset(0, midY), Offset(chartWidth, midY), dashPaint);
+    _drawDashedLine(
+      canvas,
+      Offset(0, midY),
+      Offset(chartWidth, midY),
+      dashPaint,
+    );
 
     final today = DateTime.now();
 
     for (int i = 0; i < count; i++) {
       final date = dates[i];
       final amount = values[i];
-      final isToday = date.year == today.year &&
+      final isToday =
+          date.year == today.year &&
           date.month == today.month &&
           date.day == today.day;
 
@@ -64,7 +78,10 @@ class BarChartPainter extends CustomPainter {
 
       // Height calculation with animation
       final double normalizedRatio = (amount / maxAmount).clamp(0.0, 1.0);
-      final double currentHeight = max(4.0, normalizedRatio * chartHeight * animationProgress);
+      final double currentHeight = max(
+        4.0,
+        normalizedRatio * chartHeight * animationProgress,
+      );
       final double barTop = baselineY - currentHeight;
 
       // Draw Bar
@@ -75,7 +92,9 @@ class BarChartPainter extends CustomPainter {
       );
 
       final barPaint = Paint()
-        ..color = isToday ? activeBarColor : (amount > 0 ? barColor : const Color(0xFF1E293B))
+        ..color = isToday
+            ? activeBarColor
+            : (amount > 0 ? barColor : const Color(0xFF1E293B))
         ..style = PaintingStyle.fill;
 
       final roundedRect = RRect.fromRectAndCorners(

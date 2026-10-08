@@ -36,8 +36,6 @@ class DonutChartPainter extends CustomPainter {
     double currentAngle = -pi / 2; // Start from top 12 o'clock
     const double gapAngle = 0.04; // Visual gap between donut slices
 
-    final totalSweepBudget = 2 * pi * animationProgress;
-
     data.forEach((category, amount) {
       if (amount <= 0) return;
 

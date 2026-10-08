@@ -5,7 +5,6 @@ import '../../../core/utils/currency_formatter.dart';
 import '../../expense_tracker/models/expense_item.dart';
 import '../widgets/animated_donut_chart.dart';
 import '../widgets/animated_bar_chart.dart';
-import '../../camera_scanner/presentation/camera_screen.dart';
 
 class DashboardScreen extends StatefulWidget {
   final VoidCallback onNavigateToTransactions;
