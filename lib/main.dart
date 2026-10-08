@@ -9,9 +9,9 @@ import 'features/expense_tracker/presentation/expenses_list_screen.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize SQLite database & seed demo data if first install
+  // Initialize SQLite database locally for this device
   try {
-    await DatabaseHelper.instance.seedInitialDataIfEmpty();
+    await DatabaseHelper.instance.database;
   } catch (e) {
     debugPrint('Database initialization notice: $e');
   }

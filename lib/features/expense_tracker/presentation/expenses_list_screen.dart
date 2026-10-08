@@ -301,24 +301,42 @@ class ExpensesListScreenState extends State<ExpensesListScreen> {
                               ),
                               if (_searchQuery.isEmpty && _selectedCategory == null) ...[
                                 const SizedBox(height: 20),
-                                OutlinedButton.icon(
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: const Color(0xFF10B981),
-                                    side: const BorderSide(color: Color(0xFF10B981)),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF10B981),
+                                    foregroundColor: Colors.white,
                                     shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
+                                      borderRadius: BorderRadius.circular(14),
                                     ),
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                                    elevation: 2,
                                   ),
-                                  icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
-                                  label: const Text('Nạp lại dữ liệu mẫu'),
+                                  icon: const Icon(Icons.qr_code_scanner_rounded, size: 20),
+                                  label: const Text(
+                                    'Quét hóa đơn ngay',
+                                    style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                                  ),
+                                  onPressed: () async {
+                                    final res = await Navigator.of(context).push<bool>(
+                                      MaterialPageRoute(builder: (context) => const CameraScreen()),
+                                    );
+                                    if (res == true) refreshData();
+                                  },
+                                ),
+                                const SizedBox(height: 10),
+                                TextButton.icon(
+                                  style: TextButton.styleFrom(
+                                    foregroundColor: const Color(0xFF94A3B8),
+                                  ),
+                                  icon: const Icon(Icons.auto_fix_high_rounded, size: 16),
+                                  label: const Text('Nạp dữ liệu mẫu (để thử nghiệm biểu đồ)'),
                                   onPressed: () async {
                                     await DatabaseHelper.instance.seedSampleData();
                                     refreshData();
                                     if (mounted) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(
-                                          content: Text('Đã nạp lại 7 hóa đơn mẫu để test biểu đồ!'),
+                                          content: Text('Đã nạp 7 hóa đơn mẫu để thử nghiệm biểu đồ!'),
                                           backgroundColor: Color(0xFF10B981),
                                         ),
                                       );
