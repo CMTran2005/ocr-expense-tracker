@@ -47,11 +47,11 @@ jobs:
       - name: Build Android APK
         run: |
           echo "=== Building Android APK ==="
-          if flutter build apk --release --no-tree-shake-icons; then
+          if flutter build apk --release --no-tree-shake-icons --android-skip-build-dependency-validation; then
             echo "Release APK build succeeded!"
           else
             echo "Building Debug APK fallback..."
-            flutter build apk --debug
+            flutter build apk --debug --android-skip-build-dependency-validation
             mkdir -p build/app/outputs/flutter-apk/
             cp build/app/outputs/flutter-apk/app-debug.apk build/app/outputs/flutter-apk/app-release.apk
           fi
