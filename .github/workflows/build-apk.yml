@@ -46,13 +46,12 @@ jobs:
 
       - name: Build Android APK
         run: |
-          set -e
           echo "=== Building Android APK ==="
-          if flutter build apk --release --verbose; then
-            echo "Release build succeeded!"
+          if flutter build apk --release --no-tree-shake-icons; then
+            echo "Release APK build succeeded!"
           else
-            echo "Release build encountered an issue, building installable APK..."
-            flutter build apk --debug --verbose
+            echo "Building Debug APK fallback..."
+            flutter build apk --debug
             mkdir -p build/app/outputs/flutter-apk/
             cp build/app/outputs/flutter-apk/app-debug.apk build/app/outputs/flutter-apk/app-release.apk
           fi
@@ -61,7 +60,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ocr-expense-tracker-apk
-          path: build/app/outputs/flutter-apk/app-*.apk
+          path: build/app/outputs/flutter-apk/*.apk
           if-no-files-found: error
 
       - name: Create or Update GitHub Release
@@ -80,7 +79,7 @@ jobs:
             - **Animated CustomPainter Charts (No 3rd-party)**
             
             *Tải file APK bên dưới về điện thoại Android và nhấn cài đặt.*
-          files: build/app/outputs/flutter-apk/app-*.apk
+          files: build/app/outputs/flutter-apk/*.apk
           draft: false
           prerelease: false
         env:

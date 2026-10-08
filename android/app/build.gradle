@@ -24,10 +24,17 @@ android {
         targetSdk 34
         versionCode flutter.versionCode
         versionName flutter.versionName
+        multiDexEnabled true
     }
 
     buildTypes {
         release {
+            signingConfig signingConfigs.debug
+            minifyEnabled false
+            shrinkResources false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
             signingConfig signingConfigs.debug
         }
     }
