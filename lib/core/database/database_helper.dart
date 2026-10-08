@@ -187,69 +187,124 @@ class DatabaseHelper {
     return weeklyMap;
   }
 
-  /// Seed initial demo data if database is brand new
+  /// Delete all expenses and their cached receipt photos, marking has_seeded to prevent auto-reseed
+  Future<void> clearAllExpenses() async {
+    final db = await database;
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS app_metadata (
+        key TEXT PRIMARY KEY,
+        value TEXT
+      )
+    ''');
+    await db.insert(
+      'app_metadata',
+      {'key': 'has_seeded', 'value': 'true'},
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+
+    final items = await getAllExpenses();
+    for (final item in items) {
+      if (item.receiptImagePath != null) {
+        try {
+          final file = File(item.receiptImagePath!);
+          if (await file.exists()) {
+            await file.delete();
+          }
+        } catch (_) {}
+      }
+    }
+    await db.delete(tableName);
+  }
+
+  /// Manually force-seed sample demo data
+  Future<void> seedSampleData() async {
+    final now = DateTime.now();
+    final sampleItems = [
+      ExpenseItem(
+        merchant: 'WinMart+ Trần Đại Nghĩa',
+        amount: 145000,
+        category: ExpenseCategory.food,
+        transactionDate: now.subtract(const Duration(hours: 4)),
+        notes: 'Mua sữa, bánh mì, mì tôm',
+      ),
+      ExpenseItem(
+        merchant: 'Highlands Coffee FPT',
+        amount: 59000,
+        category: ExpenseCategory.food,
+        transactionDate: now.subtract(const Duration(days: 1, hours: 2)),
+        notes: 'Phin sữa đá size L',
+      ),
+      ExpenseItem(
+        merchant: 'Fahasa Da Nang',
+        amount: 285000,
+        category: ExpenseCategory.study,
+        transactionDate: now.subtract(const Duration(days: 2)),
+        notes: 'Giáo trình Clean Code & Sổ tay',
+      ),
+      ExpenseItem(
+        merchant: 'Xăng dầu Petrolimex Số 12',
+        amount: 90000,
+        category: ExpenseCategory.travel,
+        transactionDate: now.subtract(const Duration(days: 3)),
+        notes: 'Đổ xăng xe máy Wave Alpha',
+      ),
+      ExpenseItem(
+        merchant: 'Shopee - Ugreen Official',
+        amount: 320000,
+        category: ExpenseCategory.gear,
+        transactionDate: now.subtract(const Duration(days: 4)),
+        notes: 'Cáp sạc Type-C 100W & Chuột Bluetooth',
+      ),
+      ExpenseItem(
+        merchant: 'CGV Vincom Plaza',
+        amount: 210000,
+        category: ExpenseCategory.entertainment,
+        transactionDate: now.subtract(const Duration(days: 5)),
+        notes: 'Vé xem phim cuối tuần',
+      ),
+      ExpenseItem(
+        merchant: 'GrabBike',
+        amount: 32000,
+        category: ExpenseCategory.travel,
+        transactionDate: now.subtract(const Duration(days: 6)),
+        notes: 'Đi từ trường về ký túc xá',
+      ),
+    ];
+
+    for (final item in sampleItems) {
+      await insertExpense(item);
+    }
+  }
+
+  /// Seed initial demo data only on fresh first install
   Future<void> seedInitialDataIfEmpty() async {
     final db = await database;
+    await db.execute('''
+      CREATE TABLE IF NOT EXISTS app_metadata (
+        key TEXT PRIMARY KEY,
+        value TEXT
+      )
+    ''');
+
+    final check = await db.query(
+      'app_metadata',
+      where: 'key = ?',
+      whereArgs: ['has_seeded'],
+    );
+
+    // If app has already completed initial launch, never re-seed automatically
+    if (check.isNotEmpty) {
+      return;
+    }
+
+    // Mark as initialized
+    await db.insert('app_metadata', {'key': 'has_seeded', 'value': 'true'});
+
     final count = Sqflite.firstIntValue(
       await db.rawQuery('SELECT COUNT(*) FROM $tableName'),
     );
     if (count == null || count == 0) {
-      final now = DateTime.now();
-      final sampleItems = [
-        ExpenseItem(
-          merchant: 'WinMart+ Trần Đại Nghĩa',
-          amount: 145000,
-          category: ExpenseCategory.food,
-          transactionDate: now.subtract(const Duration(hours: 4)),
-          notes: 'Mua sữa, bánh mì, mì tôm',
-        ),
-        ExpenseItem(
-          merchant: 'Highlands Coffee FPT',
-          amount: 59000,
-          category: ExpenseCategory.food,
-          transactionDate: now.subtract(const Duration(days: 1, hours: 2)),
-          notes: 'Phin sữa đá size L',
-        ),
-        ExpenseItem(
-          merchant: 'Fahasa Da Nang',
-          amount: 285000,
-          category: ExpenseCategory.study,
-          transactionDate: now.subtract(const Duration(days: 2)),
-          notes: 'Giáo trình Clean Code & Sổ tay',
-        ),
-        ExpenseItem(
-          merchant: 'Xăng dầu Petrolimex Số 12',
-          amount: 90000,
-          category: ExpenseCategory.travel,
-          transactionDate: now.subtract(const Duration(days: 3)),
-          notes: 'Đổ xăng xe máy Wave Alpha',
-        ),
-        ExpenseItem(
-          merchant: 'Shopee - Ugreen Official',
-          amount: 320000,
-          category: ExpenseCategory.gear,
-          transactionDate: now.subtract(const Duration(days: 4)),
-          notes: 'Cáp sạc Type-C 100W & Chuột Bluetooth',
-        ),
-        ExpenseItem(
-          merchant: 'CGV Vincom Plaza',
-          amount: 210000,
-          category: ExpenseCategory.entertainment,
-          transactionDate: now.subtract(const Duration(days: 5)),
-          notes: 'Vé xem phim cuối tuần',
-        ),
-        ExpenseItem(
-          merchant: 'GrabBike',
-          amount: 32000,
-          category: ExpenseCategory.travel,
-          transactionDate: now.subtract(const Duration(days: 6)),
-          notes: 'Đi từ trường về ký túc xá',
-        ),
-      ];
-
-      for (final item in sampleItems) {
-        await insertExpense(item);
-      }
+      await seedSampleData();
     }
   }
 }

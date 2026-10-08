@@ -79,11 +79,105 @@ class ExpensesListScreenState extends State<ExpensesListScreen> {
     );
   }
 
+  void _confirmClearAll() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFF1E293B),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        title: const Row(
+          children: [
+            Icon(Icons.warning_amber_rounded, color: Colors.redAccent),
+            SizedBox(width: 8),
+            Text('Xóa toàn bộ dữ liệu', style: TextStyle(color: Colors.white, fontSize: 18)),
+          ],
+        ),
+        content: const Text(
+          'Bạn có chắc chắn muốn xóa sạch toàn bộ lịch sử chi tiêu không? Hành động này sẽ xóa vĩnh viễn tất cả hóa đơn đã lưu.',
+          style: TextStyle(color: Color(0xFF94A3B8), fontSize: 14),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(),
+            child: const Text('Hủy', style: TextStyle(color: Color(0xFF94A3B8))),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.redAccent,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            onPressed: () async {
+              Navigator.of(ctx).pop();
+              await DatabaseHelper.instance.clearAllExpenses();
+              refreshData();
+              if (mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Đã xóa sạch toàn bộ dữ liệu chi tiêu!'),
+                    backgroundColor: Color(0xFF0F172A),
+                  ),
+                );
+              }
+            },
+            child: const Text('Xóa sạch'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Lịch sử chi tiêu'),
+        actions: [
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.more_vert_rounded),
+            tooltip: 'Tùy chọn dữ liệu',
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            color: const Color(0xFF1E293B),
+            onSelected: (value) async {
+              if (value == 'clear') {
+                _confirmClearAll();
+              } else if (value == 'seed') {
+                await DatabaseHelper.instance.seedSampleData();
+                refreshData();
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Đã nạp 7 hóa đơn mẫu để trải nghiệm biểu đồ!'),
+                      backgroundColor: Color(0xFF10B981),
+                    ),
+                  );
+                }
+              }
+            },
+            itemBuilder: (context) => [
+              const PopupMenuItem(
+                value: 'clear',
+                child: Row(
+                  children: [
+                    Icon(Icons.delete_sweep_rounded, color: Colors.redAccent, size: 20),
+                    SizedBox(width: 10),
+                    Text('Xóa toàn bộ dữ liệu', style: TextStyle(color: Colors.redAccent, fontSize: 14)),
+                  ],
+                ),
+              ),
+              const PopupMenuItem(
+                value: 'seed',
+                child: Row(
+                  children: [
+                    Icon(Icons.auto_fix_high_rounded, color: Color(0xFF10B981), size: 20),
+                    SizedBox(width: 10),
+                    Text('Nạp lại dữ liệu mẫu', style: TextStyle(color: Colors.white, fontSize: 14)),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       floatingActionButton: FloatingActionButton.extended(
         backgroundColor: const Color(0xFF10B981),
@@ -172,16 +266,68 @@ class ExpensesListScreenState extends State<ExpensesListScreen> {
                 ? const Center(child: CircularProgressIndicator(color: Color(0xFF10B981)))
                 : _expenses.isEmpty
                     ? Center(
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.receipt_long_outlined, size: 64, color: Colors.grey.withOpacity(0.4)),
-                            const SizedBox(height: 12),
-                            const Text(
-                              'Không có chi tiêu nào phù hợp',
-                              style: TextStyle(color: Color(0xFF94A3B8), fontSize: 16),
-                            ),
-                          ],
+                        child: SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 32),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.receipt_long_outlined,
+                                size: 64,
+                                color: const Color(0xFF64748B).withOpacity(0.5),
+                              ),
+                              const SizedBox(height: 16),
+                              Text(
+                                _searchQuery.isNotEmpty || _selectedCategory != null
+                                    ? 'Không tìm thấy chi tiêu phù hợp'
+                                    : 'Chưa có khoản chi tiêu nào',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 17,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                _searchQuery.isNotEmpty || _selectedCategory != null
+                                    ? 'Thử xóa bộ lọc hoặc tìm kiếm bằng từ khóa khác.'
+                                    : 'Hãy bấm nút Quét hóa đơn bên dưới để chụp hóa đơn thật, hoặc nạp dữ liệu mẫu để xem biểu đồ.',
+                                textAlign: TextAlign.center,
+                                style: const TextStyle(
+                                  color: Color(0xFF94A3B8),
+                                  fontSize: 13,
+                                  height: 1.4,
+                                ),
+                              ),
+                              if (_searchQuery.isEmpty && _selectedCategory == null) ...[
+                                const SizedBox(height: 20),
+                                OutlinedButton.icon(
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: const Color(0xFF10B981),
+                                    side: const BorderSide(color: Color(0xFF10B981)),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  ),
+                                  icon: const Icon(Icons.auto_fix_high_rounded, size: 18),
+                                  label: const Text('Nạp lại dữ liệu mẫu'),
+                                  onPressed: () async {
+                                    await DatabaseHelper.instance.seedSampleData();
+                                    refreshData();
+                                    if (mounted) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Đã nạp lại 7 hóa đơn mẫu để test biểu đồ!'),
+                                          backgroundColor: Color(0xFF10B981),
+                                        ),
+                                      );
+                                    }
+                                  },
+                                ),
+                              ],
+                            ],
+                          ),
                         ),
                       )
                     : RefreshIndicator(
