@@ -1,0 +1,40 @@
+name: ocr_expense_tracker
+description: "Mini-Project 3: OCR Expense Tracker & Receipt Parser with On-Device ML Kit and CustomPainter"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+  flutter: ">=3.16.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # On-Device OCR (Zero cloud cost, sub-100ms text recognition)
+  google_mlkit_text_recognition: ^0.13.0
+
+  # Live Camera Viewfinder & controls
+  camera: ^0.11.0+2
+  image_picker: ^1.1.2
+  image: ^4.3.0
+
+  # Local SQLite Database & Storage
+  sqflite: ^2.4.1
+  path_provider: ^2.1.5
+  path: ^1.9.0
+
+  # Utilities & UI
+  intl: ^0.19.0
+  cupertino_icons: ^1.0.8
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - assets/sample_receipts/
