@@ -1,118 +1,151 @@
-# OCR Expense Tracker & Receipt Parser (Flutter & Dart)
+# VKU OCR Expense Tracker & Receipt Parser
 
-[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter&logoColor=white)](https://flutter.dev)
-[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart&logoColor=white)](https://dart.dev)
-[![ML Kit](https://img.shields.io/badge/Google_ML_Kit-Offline_OCR-4285F4?style=for-the-badge&logo=google&logoColor=white)](https://developers.google.com/ml-kit)
-[![SQLite](https://img.shields.io/badge/SQLite-sqflite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](https://pub.dev/packages/sqflite)
-[![CustomPainter](https://img.shields.io/badge/Canvas-CustomPainter-FF6F00?style=for-the-badge)](https://api.flutter.dev/flutter/rendering/CustomPainter-class.html)
+A modern, offline personal finance management application with on-device AI for scanning receipts, automated heuristic expense parsing, and custom canvas-rendered animated charts at Vietnam-Korea University of Information and Communication Technology (VKU).
 
-**Mini-Project 3** for **Cross-Platform Mobile App Development** (VKU - Vietnam-Korea University of Information and Communication Technology).
+[![GitHub Repository](https://img.shields.io/badge/GitHub-Repository-181717?style=for-the-badge&logo=github)](https://github.com/CMTran2005/ocr-expense-tracker)
+[![Flutter](https://img.shields.io/badge/Flutter-3.x-02569B?style=for-the-badge&logo=flutter)](https://flutter.dev)
+[![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart)](https://dart.dev)
+[![Google ML Kit](https://img.shields.io/badge/Google_ML_Kit-Offline_OCR-4285F4?style=for-the-badge&logo=google)](https://developers.google.com/ml-kit)
+[![SQLite](https://img.shields.io/badge/SQLite-sqflite-003B57?style=for-the-badge&logo=sqlite)](https://pub.dev/packages/sqflite)
 
----
-
-## 📌 Tổng quan dự án
-
-Ứng dụng quản lý tài chính và chi tiêu thông minh với trí tuệ nhân tạo **On-Device AI** (Google ML Kit Text Recognition) hoạt động **hoàn toàn offline**, không tốn chi phí Cloud API, thời gian trích xuất dưới 100ms. 
-
-Ứng dụng giải quyết triệt để vấn đề nhập liệu thủ công tốn thời gian và dễ nhầm lẫn của sinh viên và thủ quỹ câu lạc bộ khi phải xử lý hàng tá hóa đơn thanh toán giấy (siêu thị, quán cafe, nhà sách, xăng xe,...).
+📦 **Submission Package**: GitHub Repository | Live Demo (APK / Video) | Short Report (PDF)  
+🎓 **Course**: Cross-Platform Mobile App Development — Mini-Project 3 (Weeks 7 - 8)
 
 ---
 
-## ✨ Tính năng cốt lõi (Core Specifications)
+## Key Features
 
-### 1. 📷 Camera Capture & Image Cropping
-- **Live Viewfinder**: Kính ngắm máy ảnh trực tiếp bằng gói `camera`.
-- **Flash Toggle**: Bật/tắt đèn pin (`FlashMode.torch` / `FlashMode.off`) để quét hóa đơn trong điều kiện thiếu sáng.
-- **Tap to Focus**: Chạm vào bất kỳ điểm nào trên khung hình để lấy nét và điều chỉnh phơi sáng với hoạt họa vòng tròn focus.
-- **Framing Crop Overlay**: Khung ngắm bán trong suốt có 4 góc bo sáng định hướng cự ly hóa đơn.
-- **Gallery Fallback**: Cho phép chọn ảnh hóa đơn từ bộ sưu tập ảnh máy khi chạy trên thiết bị không có camera vật lý.
+### 📷 Camera Capture & Viewfinder:
+- **Live Viewfinder**: Real-time camera stream using the official `camera` plugin.
+- **Flash & Tap-to-Focus**: Toggle torch mode for low-light scanning and tap anywhere to focus with an animated focal indicator.
+- **Framing Crop Overlay**: Semi-transparent mask with highlighted corner anchors for accurate receipt framing.
+- **Gallery Import Fallback**: Pick existing receipt photos directly from the device gallery for emulator testing.
 
-### 2. 🧠 On-Device Text Recognition & Heuristic Regex Engine
-- **Offline ML Kit OCR**: Tích hợp `google_mlkit_text_recognition` nhận diện ký tự quang học offline với độ trễ <100ms.
-- **Heuristic Regex Engine**:
-  - **Tổng tiền**: Bắt từ khóa ưu tiên (`Tổng cộng`, `Thành tiền`, `Total`, `Thanh toán`,...) kết hợp regex số tiền chuẩn hóa định dạng dấu `.` và `,` (`150.000 đ`, `150,000 VND`). Fallback tìm giá trị tiền hợp lý lớn nhất.
-  - **Ngày giao dịch**: Bắt định dạng `DD/MM/YYYY`, `DD-MM-YYYY`, `YYYY-MM-DD`.
-  - **Tên người bán / Cửa hàng**: Lọc 1–3 dòng đầu của hóa đơn, loại bỏ từ khóa nhiễu (*Hóa đơn bán lẻ, Phiếu tính tiền, VAT, Welcome,...*).
-  - **Tự động phân loại (Auto-Categorization)**: Dựa trên từ khóa mặt hàng và tên quán để gợi ý danh mục chuẩn xác (*Food, Study, Travel, Gear, Entertainment*).
-- **Màn hình Review tương tác**: Cho phép người dùng kiểm tra thông tin, sửa đổi số tiền, thay đổi danh mục, ghi chú trước khi lưu vào cơ sở dữ liệu.
+### 🧠 On-Device AI & Heuristic Parser:
+- **Offline ML Kit OCR**: Text extraction powered by `google_mlkit_text_recognition` running locally with zero cloud API costs and sub-100ms latency.
+- **Regex Heuristic Engine**:
+  - **Monetary Totals**: Extracts totals using proximity keywords (`Tổng cộng`, `Thành tiền`, `Total`, `Amount`) and handles Vietnamese currency delimiters (`150.000 đ`, `150,000 VND`).
+  - **Transaction Dates**: Parses standard formats (`DD/MM/YYYY`, `DD-MM-YYYY`, `YYYY-MM-DD`).
+  - **Merchant Name**: Filters top lines and ignores common noise phrases (*Hóa đơn bán lẻ, VAT, Welcome*).
+  - **Auto-Categorization**: Intelligently classifies expenses into Food, Study, Travel, Gear, or Entertainment based on merchant and item keywords.
+- **Interactive Review Screen**: Full verification form allowing manual corrections and notes before persistent saving.
 
-### 3. 💾 Local Database & Transaction Lifecycle
-- **Cơ sở dữ liệu SQLite**: Sử dụng `sqflite` lưu trữ toàn bộ lịch sử chi tiêu bền vững.
-- **Phân loại danh mục chuẩn**:
-  - 🍔 **Food**: Ăn uống, cà phê, nhà hàng, siêu thị.
-  - 📚 **Study**: Sách vở, tài liệu, in ấn, học phí.
-  - 🚗 **Travel**: Đi lại, xăng xe, Grab, vé tàu xe.
-  - 💻 **Gear**: Thiết bị điện tử, phụ kiện công nghệ.
-  - 🎮 **Entertainment**: Giải trí, rạp chiếu phim, bi-a, game.
-  - 🏷️ **Other**: Các khoản chi tiêu khác.
-- **Receipt Thumbnail Caching**: Lưu ảnh hóa đơn vào thư mục tài liệu của ứng dụng (`path_provider`), lưu đường dẫn tham chiếu trong cơ sở dữ liệu.
+### 💾 Expense Management & Local Storage:
+- **Persistent SQLite Database**: Built with `sqflite` for fast and reliable local transaction lifecycle management.
+- **Category Classification**: Dedicated categories (`Food`, `Study`, `Travel`, `Gear`, `Entertainment`, `Other`) with custom icons and color tokens.
+- **Transaction History**: Real-time search by merchant name, filter chips by category, and swipe-to-delete with undo.
+- **Receipt Thumbnail Caching**: Automatically saves compressed receipt images to the app storage directory (`path_provider`).
 
-### 4. 📊 Custom Canvas Visualizations with `CustomPainter`
-> 🚫 **Nghiêm ngặt**: Tuyệt đối **không sử dụng** bất kỳ thư viện biểu đồ bên thứ 3 nào (`fl_chart`, `syncfusion_flutter_charts`,...).
-
-- **Animated Category Donut Chart**:
-  - Vẽ trực tiếp trên Canvas với `canvas.drawArc` và `PaintingStyle.stroke`.
-  - Tính góc quét tỉ lệ: $Angle_i = 2\pi \times \frac{Amount_i}{Total}$.
-  - Hoạt họa xoay quét mượt mà với `AnimationController` & `CurvedAnimation(curve: Curves.easeOutCubic)`.
-  - Hiển thị tâm: Tổng số tiền chi tiêu và số danh mục.
-  - Chú giải (Legend) màu sắc và tỉ lệ phần trăm tương ứng.
+### 📊 Custom Canvas Visualizations (No 3rd-Party Charts):
+- **Animated Donut / Pie Chart**:
+  - Rendered entirely with Flutter's `CustomPainter` API (`canvas.drawArc`).
+  - Smooth radial sweep animation powered by `AnimationController` and `CurvedAnimation`.
+  - Center hub displaying total expenses and interactive category legends with percentages.
 - **Animated Weekly Spending Bar Chart**:
-  - Phân bổ chi tiêu 7 ngày trong tuần (T2 đến CN).
-  - Vẽ cột bo góc bằng `canvas.drawRRect`.
-  - Vẽ nhãn ngày và đường kẻ gióng bằng `TextPainter` và dashed lines.
-  - Hoạt họa cột mọc từ đáy lên trên theo hệ số scale `animationProgress`.
+  - 7-day spending distribution (Monday to Sunday) with rounded bar caps (`canvas.drawRRect`).
+  - Day axis labels (T2 – CN) and dynamic height scaling.
 
 ---
 
-## 🏗️ Kiến trúc ứng dụng (Architecture)
+## Technology Stack
+
+| Component | Technology Used |
+| :--- | :--- |
+| **Framework** | Flutter 3.x (Material 3) |
+| **Language** | Dart 3.x |
+| **On-Device OCR** | Google ML Kit (`google_mlkit_text_recognition`) |
+| **Camera & Media** | `camera`, `image_picker`, `image` |
+| **Local Database** | SQLite (`sqflite`), `path_provider` |
+| **Visualizations** | Native Canvas API (`CustomPainter` & `AnimationController`) |
+| **Utilities** | `intl` (Vietnamese currency & date formatting) |
+
+---
+
+## Project Architecture
 
 ```
-lib/
-├── core/
-│   ├── constants/             # Danh mục chi tiêu (ExpenseCategory enum)
-│   ├── database/              # SQLite DatabaseHelper & CRUD operations
-│   ├── theme/                 # Dark Theme & bảng màu Emerald
-│   └── utils/                 # CurrencyFormatter (VND formatting, string parsing)
-├── features/
-│   ├── camera_scanner/        # Camera viewfinder, flash, tap-to-focus & crop overlay
-│   ├── receipt_parser/        # Google ML Kit OCR service, Heuristic Regex engine & Review screen
-│   ├── expense_tracker/       # Quản lý giao dịch, tìm kiếm, lọc danh mục, chi tiết hóa đơn
-│   └── analytics_charts/      # CustomPainter Donut & Bar Charts (Animated Canvas)
-└── main.dart                  # Điểm khởi chạy ứng dụng & Bottom navigation shell
+mini-project-3-ocr-expense-tracker/
+├── lib/
+│   ├── core/
+│   │   ├── constants/             # ExpenseCategory enum, color & icon mappings
+│   │   ├── database/              # SQLite DatabaseHelper, CRUD & demo seeder
+│   │   ├── theme/                 # Dark & light theme tokens (Slate & Emerald)
+│   │   └── utils/                 # CurrencyFormatter & Date utilities
+│   ├── features/
+│   │   ├── analytics_charts/      # Custom Canvas Visualizations
+│   │   │   ├── painters/          # DonutChartPainter, BarChartPainter
+│   │   │   ├── widgets/           # AnimatedDonutChart, AnimatedBarChart
+│   │   │   └── presentation/      # DashboardScreen
+│   │   ├── camera_scanner/        # Camera Viewfinder & Framing
+│   │   │   ├── widgets/           # CameraCropOverlay (Canvas mask)
+│   │   │   └── presentation/      # CameraScreen
+│   │   ├── expense_tracker/       # Expense Lifecycle Management
+│   │   │   ├── models/            # ExpenseItem model & serialization
+│   │   │   └── presentation/      # ExpensesListScreen, ExpenseDetailSheet
+│   │   └── receipt_parser/        # OCR & Heuristic Engine
+│   │       ├── models/            # ParsedReceiptDraft DTO
+│   │       ├── services/          # MlKitOcrService, HeuristicParserService
+│   │       └── presentation/      # ReviewReceiptScreen
+│   └── main.dart                  # Application entry point & Bottom Navigation Shell
+├── test/
+│   └── heuristic_parser_test.dart # Unit tests for regex heuristics
+├── android/                       # Native Android configuration (minSdkVersion 21)
+├── pubspec.yaml                   # Project dependencies and asset definitions
+├── REPORT_TEMPLATE.md             # 2-4 page report template for submission
+└── README.md
 ```
 
 ---
 
-## 🚀 Hướng dẫn cài đặt & Chạy ứng dụng
+## Getting Started
 
-### 1. Yêu cầu môi trường
-- Flutter SDK `>=3.16.0` (Dart `>=3.2.0`)
-- Android SDK (minSdkVersion: `21`) hoặc thiết bị di động Android / iOS thực tế.
+### 1. Prerequisites
+- Flutter SDK (v3.16 or higher)
+- Dart SDK (v3.2 or higher)
+- Android Studio / VS Code with Flutter extension
+- Android device or emulator with camera/webcam support
 
-### 2. Cài đặt Dependencies
+### 2. Installation
 ```bash
+# Clone repository
+git clone https://github.com/CMTran2005/ocr-expense-tracker.git
+
+# Navigate into project directory
+cd ocr-expense-tracker
+
+# Install dependencies
 flutter pub get
 ```
 
-### 3. Chạy kiểm thử tự động (Unit Tests)
-```bash
-flutter test test/heuristic_parser_test.dart
-```
+### 3. Run Locally
 
-### 4. Khởi chạy trên thiết bị hoặc máy ảo
+#### Mobile Device / Emulator:
 ```bash
 flutter run
 ```
 
+#### Run Automated Unit Tests:
+```bash
+flutter test test/heuristic_parser_test.dart
+```
+
 ---
 
-## 📦 Gói nộp bài (Mandatory Submission Deliverables)
+## Production Build & Deliverables
 
-1. **Live Demo URL / Video**:
-   - Link tải APK phát hành: `Releases` trên GitHub.
-   - Video demo 2–3 phút thao tác quét hóa đơn thực tế và tương tác biểu đồ.
-2. **GitHub Repository**:
-   - URL: `https://github.com/CMTran2005/ocr-expense-tracker`
-   - Lịch sử commit rõ ràng theo Conventional Commits.
-3. **Báo cáo ngắn (Short Report PDF)**:
-   - File tài liệu `REPORT_TEMPLATE.md` sẵn sàng xuất thành PDF (2–4 trang).
+### Build Release APK:
+```bash
+flutter build apk --release
+```
+*Outputs release APK file at `build/app/outputs/flutter-apk/app-release.apk` for GitHub Releases.*
+
+### Submission Checklist:
+1. **GitHub Repository**: [https://github.com/CMTran2005/ocr-expense-tracker](https://github.com/CMTran2005/ocr-expense-tracker)
+2. **Live Demo / Video**: 2–3 minute walk-through showcasing OCR capture, review flow, and animated CustomPainter charts.
+3. **Short Report (PDF)**: 2–4 page summary generated using `REPORT_TEMPLATE.md`.
+
+---
+
+## License
+
+Distributed under the MIT License. Developed for VKU Cross-Platform Mobile Application Development.
