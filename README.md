@@ -7,6 +7,8 @@ A modern, offline personal finance management application with on-device AI for 
 [![Dart](https://img.shields.io/badge/Dart-3.x-0175C2?style=for-the-badge&logo=dart)](https://dart.dev)
 [![Google ML Kit](https://img.shields.io/badge/Google_ML_Kit-Offline_OCR-4285F4?style=for-the-badge&logo=google)](https://developers.google.com/ml-kit)
 [![SQLite](https://img.shields.io/badge/SQLite-sqflite-003B57?style=for-the-badge&logo=sqlite)](https://pub.dev/packages/sqflite)
+[![Build APK](https://img.shields.io/github/actions/workflow/status/CMTran2005/ocr-expense-tracker/build-apk.yml?style=for-the-badge&logo=githubactions&label=Build%20APK)](https://github.com/CMTran2005/ocr-expense-tracker/actions)
+[![Direct APK Download](https://img.shields.io/badge/Download_APK-Release_v1.0.0-10B981?style=for-the-badge&logo=android&logoColor=white)](https://github.com/CMTran2005/ocr-expense-tracker/releases)
 
 📦 **Submission Package**: GitHub Repository | Live Demo (APK / Video) | Short Report (PDF)  
 🎓 **Course**: Cross-Platform Mobile App Development — Mini-Project 3 (Weeks 7 - 8)
