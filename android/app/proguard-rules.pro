@@ -1,3 +1,5 @@
+-dontoptimize
+
 # Google ML Kit ProGuard Rules
 -keep class com.google.mlkit.** { *; }
 -dontwarn com.google.mlkit.**
