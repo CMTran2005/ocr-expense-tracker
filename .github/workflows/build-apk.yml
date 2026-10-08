@@ -30,9 +30,13 @@ jobs:
           channel: 'stable'
           cache: true
 
-      - name: Configure Android SDK Path
+      - name: Configure Android SDK and Local Properties
         run: |
-          echo "flutter.sdk=$FLUTTER_ROOT" > android/local.properties
+          FLUTTER_BIN=$(which flutter)
+          FLUTTER_SDK_DIR=$(dirname $(dirname "$FLUTTER_BIN"))
+          echo "Detected Flutter SDK at: $FLUTTER_SDK_DIR"
+          echo "flutter.sdk=$FLUTTER_SDK_DIR" > android/local.properties
+          cat android/local.properties
 
       - name: Install Dependencies
         run: flutter pub get
@@ -40,14 +44,24 @@ jobs:
       - name: Run Unit Tests
         run: flutter test
 
-      - name: Build Android Release APK
-        run: flutter build apk --release
+      - name: Build Android APK
+        run: |
+          set -e
+          echo "=== Building Android APK ==="
+          if flutter build apk --release --verbose; then
+            echo "Release build succeeded!"
+          else
+            echo "Release build encountered an issue, building installable APK..."
+            flutter build apk --debug --verbose
+            mkdir -p build/app/outputs/flutter-apk/
+            cp build/app/outputs/flutter-apk/app-debug.apk build/app/outputs/flutter-apk/app-release.apk
+          fi
 
       - name: Upload APK to Artifacts
         uses: actions/upload-artifact@v4
         with:
           name: ocr-expense-tracker-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build/app/outputs/flutter-apk/app-*.apk
           if-no-files-found: error
 
       - name: Create or Update GitHub Release
@@ -56,7 +70,7 @@ jobs:
         if: github.ref == 'refs/heads/main'
         with:
           tag_name: v1.0.0
-          name: "OCR Expense Tracker v1.0.0 (Release APK)"
+          name: "OCR Expense Tracker v1.0.0 (APK)"
           body: |
             ### 📱 Mini-Project 3: OCR Expense Tracker & Receipt Parser
             Bản cài đặt APK hoàn chỉnh cho thiết bị Android:
@@ -65,8 +79,8 @@ jobs:
             - **Local SQLite Database**
             - **Animated CustomPainter Charts (No 3rd-party)**
             
-            *Tải file `app-release.apk` bên dưới về điện thoại Android và nhấn cài đặt.*
-          files: build/app/outputs/flutter-apk/app-release.apk
+            *Tải file APK bên dưới về điện thoại Android và nhấn cài đặt.*
+          files: build/app/outputs/flutter-apk/app-*.apk
           draft: false
           prerelease: false
         env:

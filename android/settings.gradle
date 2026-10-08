@@ -5,12 +5,16 @@ pluginManagement {
             def properties = new Properties()
             localProperties.withInputStream { properties.load(it) }
             def path = properties.getProperty("flutter.sdk")
-            if (path != null) return path
+            if (path != null && !path.trim().isEmpty()) return path.trim()
         }
-        return System.getenv("FLUTTER_ROOT") ?: System.getenv("FLUTTER_HOME")
+        def envPath = System.getenv("FLUTTER_ROOT") ?: System.getenv("FLUTTER_HOME") ?: System.getenv("FLUTTER_SDK")
+        if (envPath != null && !envPath.trim().isEmpty()) return envPath.trim()
+        return null
     }()
 
-    includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+    if (flutterSdkPath != null) {
+        includeBuild("$flutterSdkPath/packages/flutter_tools/gradle")
+    }
 
     repositories {
         google()
